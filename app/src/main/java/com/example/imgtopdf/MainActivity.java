@@ -2,12 +2,8 @@ package com.example.imgtopdf;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
-
 import android.Manifest;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -28,11 +24,9 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-
 import pub.devrel.easypermissions.EasyPermissions;
 
 public class MainActivity extends AppCompatActivity {
@@ -54,7 +48,7 @@ public class MainActivity extends AppCompatActivity {
         // granting permission
         String[] galleryPermissions = {Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE};
         if (EasyPermissions.hasPermissions(this, galleryPermissions)) {
-            Log.e("permission", "permissions are granted");
+            Log.i("local-dev", "permissions are granted");
         } else {
             EasyPermissions.requestPermissions(this, "Access for storage",
                     101, galleryPermissions);
@@ -70,7 +64,7 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-               checkFileName();
+                checkFileName();
             }
 
             @Override
@@ -122,7 +116,11 @@ public class MainActivity extends AppCompatActivity {
             Toast.makeText(this, path.toString(), Toast.LENGTH_SHORT).show();
             imageView.setImageBitmap(bitmap);
             makePDF(bitmap);
-            }
+        }
+
+        if (requestCode == 123 && resultCode == RESULT_OK && data != null) {
+            Uri uri = data.getData();
+        }
         super.onActivityResult(requestCode, resultCode, data);
     }
 
@@ -145,8 +143,7 @@ public class MainActivity extends AppCompatActivity {
 
     public void saveFile(View v) {
         if (pdfDocument == null) {
-            Toast.makeText(this, "null pointer exception", Toast.LENGTH_SHORT).show();
-            System.out.println("Null pointer => pdfDocument");
+            Log.i("local-dev", "pdfDocument in 'saveFile' function is null");
             return;
         }
         File root = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), "ImgToPDF");
@@ -165,7 +162,15 @@ public class MainActivity extends AppCompatActivity {
             }
             pdfDocument.close();
         }
-        Toast.makeText(this, "Successful! PATH:\n" +"Internal Storage/" + Environment.DIRECTORY_DOWNLOADS, Toast.LENGTH_SHORT).show();
+        Log.i("local-dev", "'saveFile' function successfully done");
+        Toast.makeText(this, "Successful! PATH:\n" + "Internal Storage/" + Environment.DIRECTORY_DOWNLOADS, Toast.LENGTH_SHORT).show();
     }
 
+    public void showPDF(View view) {
+
+        Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+        intent.setType("application/pdf");
+        intent.addCategory(Intent.CATEGORY_OPENABLE);
+        startActivityForResult(intent, 123);
+    }
 }
